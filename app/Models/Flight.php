@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Flight extends Model
 {
     protected $fillable = [
-        'igc_file'
+        'igc_file',
+        'user_id',
+        'max_altitude',
+        'distance',
+        'points',
+        'takeoff_time',
+        'landing_time',
+        'glider-type'
     ];
 }
