@@ -43,7 +43,7 @@ class FlightController extends Controller
             'user_id' => $request->user()->id,
             'max_altitude' => $parsedData['max_altitude'],
             'distance' => $parsedData['total_distance'],
-            'points' => 15,
+            'points' => $parsedData['total_distance'],
             'takeoff_time' => $parsedData['takeoff_time'],
             'landing_time' => $parsedData['landing_time'],
             'glider-type' => $parsedData['aircraft_type'],
