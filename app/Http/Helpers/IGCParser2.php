@@ -106,60 +106,6 @@ class IGCParser2
             }
         }
 
-        // Auxiliares para distancia y detección de giro
-        function haversine($lat1, $lon1, $lat2, $lon2) //Formula de Haversine (distancia entre dos puntos en la esfera)
-        {
-            $R = 6357; // km radio de la tierra
-            $dLat = deg2rad($lat2 - $lat1);
-            $dLon = deg2rad($lon2 - $lon1);
-            $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) ** 2;
-            return $R * 2 * asin(min(1, sqrt($a)));
-        }
-
-        function bearing($lat1, $lon1, $lat2, $lon2)
-        {
-            $dLon = deg2rad($lon2 - $lon1);
-            $φ1 = deg2rad($lat1);
-            $φ2 = deg2rad($lat2);
-            $y = sin($dLon) * cos($φ2);
-            $x = cos($φ1) * sin($φ2) - sin($φ1) * cos($φ2) * cos($dLon);
-            $brng = rad2deg(atan2($y, $x));
-            return ($brng + 360) % 360;
-        }
-
-        // 2) Encuentra “puntos de giro importantes” (cambio > 30°)
-        $turnpoints = [0]; // incluir el primer punto
-
-
-        for ($i = 1; $i < count($track) - 1; $i += self::SENSIBILITY) {
-            $b1 = bearing(
-                $track[$i - 1]['lat'], $track[$i - 1]['lon'],
-                $track[$i]['lat'], $track[$i]['lon']
-            );
-            $b2 = bearing(
-                $track[$i]['lat'], $track[$i]['lon'],
-                $track[$i + 1]['lat'], $track[$i + 1]['lon']
-            );
-
-            $diff = self::angleDiff($b1, $b2);
-
-            if ($diff > self::THRESHOLD) {
-                $turnpoints[] = $i;
-            }
-        }
-        $turnpoints[] = count($track) - 1; // incluir el último
-
-        // 3) Distancia total sumando solo entre turnpoints
-        $totalDist = 0.0;
-        for ($j = 0; $j < count($turnpoints) - 1; $j++) {
-            $p = $turnpoints[$j];
-            $q = $turnpoints[$j + 1];
-            $totalDist += haversine(
-                $track[$p]['lat'], $track[$p]['lon'],
-                $track[$q]['lat'], $track[$q]['lon']
-            );
-        }
-
         // 4) Horas de despegue y aterrizaje
         $first = $track[0]['time'];
         $last = $track[count($track) - 1]['time'];
@@ -167,18 +113,54 @@ class IGCParser2
         $takeoffDT = DateTime::createFromFormat('Hisu', $first . '000000');
         $landingDT = DateTime::createFromFormat('Hisu', $last . '000000');
 
+        $scoreData = self::calculateXCScore($track);
+
         return [
             'max_altitude' => $maxAlt,
-            'total_distance' => round($totalDist, 3),   // km con 3 decimales
+            'total_distance' => $scoreData['score_km'],
             'takeoff_time' => $takeoffDT->format('Y-m-d H:i:s'),
             'landing_time' => $landingDT->format('Y-m-d H:i:s'),
             'aircraft_type' => $aircraftType,
         ];
     }
 
-    private static function angleDiff($a, $b) {
-        $diff = abs($a - $b) % 360;
-        return ($diff > 180) ? 360 - $diff : $diff;
+    public static function calculateXCScore(array $track): array
+    {
+        $maxDist = 0.0;
+        $startIndex = 0;
+        $endIndex = 0;
+
+        // Haversine como función interna
+        $haversine = function ($lat1, $lon1, $lat2, $lon2) {
+            $R = 6371; // km
+            $dLat = deg2rad($lat2 - $lat1);
+            $dLon = deg2rad($lon2 - $lon1);
+            $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) ** 2;
+            return $R * 2 * asin(min(1, sqrt($a)));
+        };
+
+        // Recorremos todos los pares de puntos para encontrar la mayor distancia
+        for ($i = 0; $i < count($track) - 1; $i++) {
+            for ($j = $i + 1; $j < count($track); $j++) {
+                $d = $haversine(
+                    $track[$i]['lat'], $track[$i]['lon'],
+                    $track[$j]['lat'], $track[$j]['lon']
+                );
+                if ($d > $maxDist) {
+                    $maxDist = $d;
+                    $startIndex = $i;
+                    $endIndex = $j;
+                }
+            }
+        }
+
+        return [
+            'type' => 'open_distance',
+            'score_km' => round($maxDist, 3),
+            'points' => round($maxDist * 1.0, 3), // factor 1.0
+            'start_point' => $track[$startIndex],
+            'end_point' => $track[$endIndex],
+        ];
     }
 
 }

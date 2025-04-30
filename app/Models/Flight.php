@@ -14,6 +14,12 @@ class Flight extends Model
         'points',
         'takeoff_time',
         'landing_time',
-        'glider-type'
+        'glider-type',
+        'category',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

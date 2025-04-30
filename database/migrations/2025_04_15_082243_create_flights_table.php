@@ -21,6 +21,7 @@ return new class extends Migration
             $table->dateTime('takeoff_time');
             $table->dateTime('landing_time');
             $table->string('glider-type');
+            $table->enum('category', ['open', 'sport', 'club', 'tandem'])->default('open');
 
             $table->timestamps();
         });
