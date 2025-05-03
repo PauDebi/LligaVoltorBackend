@@ -17,3 +17,5 @@ Route::prefix('leaderboard')->group(function () {
     Route::get('/club', [LeaderboardController::class, 'getClub']);
     Route::get('/tandem', [LeaderboardController::class, 'getTandem']);
 });
+
+require __DIR__.'/auth.php';
