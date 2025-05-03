@@ -29,6 +29,7 @@ class IGCParser2
      */
     static function parseIGC(string $filePath): array
     {
+        set_time_limit(300);
         if (!file_exists($filePath)) {
             throw new Exception("El archivo IGC no existe: $filePath");
         }
