@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FlightController;
 use App\Http\Controllers\LeaderboardController;
+use App\Models\Flight;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,6 +11,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::apiResource('flight', FlightController::class)->middleware('auth:sanctum');
+Route::get('/flight/{user_id}', FlightController::class . '@getFlightsFromUser')->middleware('auth:sanctum');
 
 Route::prefix('leaderboard')->group(function () {
     Route::get('/', [LeaderboardController::class, 'getOpen']);

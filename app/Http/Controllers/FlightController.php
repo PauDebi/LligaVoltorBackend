@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\IGCParser2;
+use App\Http\Requests\GetUserFlightRequest;
 use App\Http\Requests\PostFlightRequest;
 use App\Models\Flight;
 use DateTime;
@@ -79,5 +80,16 @@ class FlightController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function getFlightsFromUser(GetUserFlightRequest $request): JsonResponse
+    {
+        $user_id = $request->get('user_id');
+        if ($request->user()->id === $user_id) {
+            return Flight::find($user_id, "user_id");
+        }
+        return Flight::where('user_id', $user_id)
+            ->where('is_private', false)
+            ->get();
     }
 }

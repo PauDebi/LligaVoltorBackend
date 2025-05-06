@@ -16,6 +16,7 @@ class Flight extends Model
         'landing_time',
         'glider-type',
         'category',
+        'is_private',
     ];
     public function user()
     {
