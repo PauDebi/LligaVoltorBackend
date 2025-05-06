@@ -10,8 +10,12 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('flight', FlightController::class)->middleware('auth:sanctum');
-Route::get('/flight/user', FlightController::class . '@getFlightsFromUser')->middleware('auth:sanctum');
+Route::prefix('flights')->group(function () {
+    Route::get('/', [FlightController::class, 'index']);
+    Route::get('/{flight}', [FlightController::class, 'show']);
+    Route::post('/', [FlightController::class, 'store']);
+    Route::get('/user' , [FlightController::class, 'getFlightsFromUser']);
+});
 
 Route::prefix('leaderboard')->group(function () {
     Route::get('/', [LeaderboardController::class, 'getOpen']);
