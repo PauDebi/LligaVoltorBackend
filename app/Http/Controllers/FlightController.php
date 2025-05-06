@@ -82,7 +82,7 @@ class FlightController extends Controller
         //
     }
 
-    public function getFlightsFromUser(GetUserFlightRequest $request): JsonResponse
+    public function getFlightsFromUser(GetUserFlightRequest $request)
     {
         $user_id = $request->get('user_id');
         if ($request->user()->id === $user_id) {

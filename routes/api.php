@@ -11,7 +11,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::apiResource('flight', FlightController::class)->middleware('auth:sanctum');
-Route::get('/flight/{user_id}', FlightController::class . '@getFlightsFromUser')->middleware('auth:sanctum');
+Route::get('/flight/user', FlightController::class . '@getFlightsFromUser')->middleware('auth:sanctum');
 
 Route::prefix('leaderboard')->group(function () {
     Route::get('/', [LeaderboardController::class, 'getOpen']);
