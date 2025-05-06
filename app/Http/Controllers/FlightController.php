@@ -86,10 +86,16 @@ class FlightController extends Controller
     {
         $user_id = $request->get('user_id');
         if ($request->user()->id === $user_id) {
-            return Flight::find($user_id, "user_id");
+            return response()->json([
+                'status' => 200,
+                'flights' => Flight::find($user_id, "user_id")
+            ]);
         }
-        return Flight::where('user_id', $user_id)
-            ->where('is_private', false)
-            ->get();
+        return response()->json([
+            'status' => 200,
+            'flights' => Flight::where('user_id', $user_id)
+                ->where('is_private', false)
+                ->get()
+        ]);
     }
 }
