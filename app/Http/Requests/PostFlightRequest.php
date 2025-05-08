@@ -24,6 +24,7 @@ class PostFlightRequest extends FormRequest
         return [
             'igc_file' => 'required',
             'category' => 'required|in:open,sport,club,tandem',
+            'is_private' => 'boolean',
         ];
     }
 }

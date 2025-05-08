@@ -38,6 +38,10 @@ class FlightController extends Controller
         //Parse the file
         $parsedData = IGCParser2::parseIGC($request->file('igc_file')->getRealPath());
 
+        if ($request->input('is_private') == null) {
+            $request->merge(['is_private' => false]);
+        }
+
         //Create a DB entry
         $flight = Flight::create([
             'igc_file' => $storedFilePath,
@@ -48,6 +52,7 @@ class FlightController extends Controller
             'takeoff_time' => $parsedData['takeoff_time'],
             'landing_time' => $parsedData['landing_time'],
             'glider-type' => $parsedData['aircraft_type'],
+            'is_private' => $request->input('is_private'),
             'category' => $request->input('category'),
         ]);
 
