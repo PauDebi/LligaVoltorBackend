@@ -13,8 +13,8 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::prefix('flights')->group(function () {
     Route::get('/', [FlightController::class, 'index']);
     Route::get('/{flight}', [FlightController::class, 'show']);
-    Route::post('/', [FlightController::class, 'store']);
-    Route::get('/user' , [FlightController::class, 'getFlightsFromUser']);
+    Route::post('/', [FlightController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/user/{user_id}' , [FlightController::class, 'getFlightsFromUser'])->middleware('auth:sanctum');
 });
 
 Route::prefix('leaderboard')->group(function () {

@@ -82,20 +82,20 @@ class FlightController extends Controller
         //
     }
 
-    public function getFlightsFromUser(GetUserFlightRequest $request): JsonResponse
+    public function getFlightsFromUser(Request $request): JsonResponse
     {
-        $user_id = $request->get('user_id');
-        if ($request->user()->id === $user_id) {
+        $user_id = $request->route('user_id');
+        if ($request->user()->id == $user_id) {
             return response()->json([
                 'status' => 200,
-                'flights' => Flight::find($user_id, "user_id")
+                'flights' => Flight::where('user_id', $user_id)->get(),
             ]);
         }
         return response()->json([
             'status' => 200,
             'flights' => Flight::where('user_id', $user_id)
                 ->where('is_private', false)
-                ->get()
+                ->get(),
         ]);
     }
 }
