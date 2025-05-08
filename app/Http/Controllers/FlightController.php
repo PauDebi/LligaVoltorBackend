@@ -19,7 +19,7 @@ class FlightController extends Controller
      */
     public function index()
     {
-        $flights = Flight::all();
+        $flights = Flight::all()->where('is_private', false)->sortByDesc('points');
         return response()->json([
             'status' => 200,
             'flights' => $flights
