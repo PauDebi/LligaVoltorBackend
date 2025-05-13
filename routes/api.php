@@ -22,12 +22,6 @@ Route::prefix('flights')->group(function () {
     Route::post('/', [FlightController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/user/{user_id}' , [FlightController::class, 'getFlightsFromUser'])->middleware('auth:sanctum');
     Route::get('/download/{flight_path}', [FlightController::class, 'getFile'])->middleware('auth:sanctum');
-    Route::post('{flight}/comment', [Social::class, 'comment'])->middleware('auth:sanctum');
-    Route::get('{flight}/comments', [Social::class, 'getComments'])->middleware('auth:sanctum');
-    Route::delete('{flight}/comment/{comment_id}', [Social::class, 'deleteComment'])->middleware('auth:sanctum');
-    Route::get('{flight}/likes', [Social::class, 'getLikes'])->middleware('auth:sanctum');
-    Route::get('{flight}/detailed_likes', [Social::class, 'getDetailedLikes'])->middleware('auth:sanctum');
-    Route::post('{flight}/like', [Social::class, 'like'])->middleware('auth:sanctum');
 });
 
 Route::prefix('leaderboard')->group(function () {
@@ -37,6 +31,14 @@ Route::prefix('leaderboard')->group(function () {
     Route::get('/tandem', [LeaderboardController::class, 'getTandem']);
 });
 
+Route::prefix('social')->group(function () {
+    Route::post('{flight}/comment', [Social::class, 'comment'])->middleware('auth:sanctum');
+    Route::get('{flight}/comments', [Social::class, 'getComments'])->middleware('auth:sanctum');
+    Route::delete('{flight}/comment/{comment_id}', [Social::class, 'deleteComment'])->middleware('auth:sanctum');
+    Route::get('{flight}/likes', [Social::class, 'getLikes'])->middleware('auth:sanctum');
+    Route::get('{flight}/detailed_likes', [Social::class, 'getDetailedLikes'])->middleware('auth:sanctum');
+    Route::post('{flight}/like', [Social::class, 'like'])->middleware('auth:sanctum');
+});
 
 
 require __DIR__.'/auth.php';
