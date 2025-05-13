@@ -19,7 +19,7 @@ class FlightController extends Controller
      */
     public function index()
     {
-        $flights = Flight::all()->where('is_private', false)->sortByDesc('points');
+        $flights = Flight::with('user')->where('is_private', false)->orderByDesc('points')->get();
         return response()->json([
             'status' => 200,
             'flights' => $flights
@@ -59,7 +59,7 @@ class FlightController extends Controller
         // Return the response
         return response()->json([
             'status' => 200,
-            'flight' => $flight
+            'flight' => $flight->load('user'),
         ]);
     }
 
@@ -93,13 +93,14 @@ class FlightController extends Controller
         if ($request->user()->id == $user_id) {
             return response()->json([
                 'status' => 200,
-                'flights' => Flight::where('user_id', $user_id)->get(),
+                'flights' => Flight::where('user_id', $user_id)->with('user')->get(),
             ]);
         }
         return response()->json([
             'status' => 200,
             'flights' => Flight::where('user_id', $user_id)
                 ->where('is_private', false)
+                ->with('user')
                 ->get(),
         ]);
     }
