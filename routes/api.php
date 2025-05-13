@@ -15,6 +15,7 @@ Route::prefix('flights')->group(function () {
     Route::get('/{flight}', [FlightController::class, 'show']);
     Route::post('/', [FlightController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/user/{user_id}' , [FlightController::class, 'getFlightsFromUser'])->middleware('auth:sanctum');
+    Route::get('/download/{flight_path}', [FlightController::class, 'getFile'])->middleware('auth:sanctum');
 });
 
 Route::prefix('leaderboard')->group(function () {
@@ -24,6 +25,6 @@ Route::prefix('leaderboard')->group(function () {
     Route::get('/tandem', [LeaderboardController::class, 'getTandem']);
 });
 
-Route::get('/igc_flights/{flight_path}', [FlightController::class, 'getIgcFile'])->middleware('auth:sanctum');
+
 
 require __DIR__.'/auth.php';

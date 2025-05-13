@@ -32,11 +32,19 @@ class FlightController extends Controller
      */
     public function store(PostFlightRequest $request): JsonResponse
     {
+        $randomName = uniqid();
+        $filename = $randomName . '.igc';
         //Store the file
-        $storedFilePath = $request->file('igc_file')->storeAs('igc_flights', uniqid() . '.igc');
+        $storedFilePath = $request->file('igc_file')->storeAs('igc_flights', $filename);
+
 
         //Parse the file
-        $parsedData = IGCParser2::parseIGC($request->file('igc_file')->getRealPath());
+        $parsedData = IGCParser2::parseIGC(
+            $request->file('igc_file')->getRealPath(),
+            $randomName
+        );
+
+
 
         if ($request->input('is_private') == null) {
             $request->merge(['is_private' => false]);
@@ -105,12 +113,32 @@ class FlightController extends Controller
         ]);
     }
 
-    public function getIgcFile(Request $request)
+    public function getFile(Request $request)
     {
-        $flightPath = "igc_flights/" . $request->route('flight_path');
-        $flight = Flight::where('igc_file', $flightPath)->first();
+        $igcFilePath = "";
+        if (str_ends_with($request->route("flight_path"), '.csv')) {
+            $igcFilePath = str_replace('.csv', '.igc', $request->route("flight_path"));
+        } else {
+            $igcFilePath = $request->route("flight_path");
+        }
+
+        $flight = Flight::where('igc_file', "igc_flights/" . $igcFilePath)->first();
+        if (!$flight) {
+            return response()->json(
+                ['error' => 'File not found',
+                'flight_path' => $request->route('flight_path'),
+                'igc_file_path' => "igc_flights/" . $igcFilePath]
+                , 404);
+        }
+        $flightPath = "";
+        if (str_ends_with($request->route('flight_path'), '.igc')) {
+            $flightPath = "igc_flights/" . $request->route('flight_path');
+        }
+        if (str_ends_with($request->route('flight_path'), '.csv')) {
+            $flightPath = "csv_flights/" . $request->route('flight_path');
+        }
         if (!$flight->is_private || $flight->user_id == $request->user()->id) {
-            return response()->download(storage_path('app/private/igc_flights/' . $request->route('flight_path')));
+            return response()->download(storage_path('app/private/' . $flightPath));
         }
         return response()->json(
             ['error' => 'File not found',

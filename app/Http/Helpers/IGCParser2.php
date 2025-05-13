@@ -27,7 +27,7 @@ class IGCParser2
      * ]
      * @throws Exception Si el archivo no existe o no puede leerse.
      */
-    static function parseIGC(string $filePath): array
+static function parseIGC(string $filePath, string $baseName): array
     {
         set_time_limit(300);
         if (!file_exists($filePath)) {
@@ -115,6 +115,7 @@ class IGCParser2
         $landingDT = DateTime::createFromFormat('Hisu', $last . '000000');
 
         $scoreData = self::calculateXCScore($track);
+        self::createCSV($track, $scoreData['start_point'], $scoreData['end_point'], $baseName);
 
         return [
             'max_altitude' => $maxAlt,
@@ -163,5 +164,26 @@ class IGCParser2
             'end_point' => $track[$endIndex],
         ];
     }
+    public static function createCSV(array $track, array $startPoint, array $endPoint, string $baseName): void
+    {
+        $csvFileName = $baseName . '.csv';
+        $csvFilePath = storage_path('app/private/csv_flights/' . $csvFileName);
+
+        if (!file_exists(dirname($csvFilePath))) {
+            mkdir(dirname($csvFilePath), 0755, true);
+        }
+
+        $file = fopen($csvFilePath, 'w');
+
+        fputcsv($file, ['Time', 'Latitude', 'Longitude', 'GPS Altitude']);
+        fputcsv($file, [$startPoint['time'], $startPoint['lat'], $startPoint['lon']]);
+        foreach ($track as $point) {
+            fputcsv($file, [$point['time'], $point['lat'], $point['lon'], $point['gpsAlt']]);
+        }
+        fputcsv($file, [$endPoint['time'], $endPoint['lat'], $endPoint['lon']]);
+
+        fclose($file);
+    }
+
 
 }
