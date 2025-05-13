@@ -24,4 +24,6 @@ Route::prefix('leaderboard')->group(function () {
     Route::get('/tandem', [LeaderboardController::class, 'getTandem']);
 });
 
+Route::get('/igc_flights/{flight_path}', [FlightController::class, 'getIgcFile'])->middleware('auth:sanctum');
+
 require __DIR__.'/auth.php';

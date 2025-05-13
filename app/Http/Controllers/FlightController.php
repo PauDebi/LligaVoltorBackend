@@ -104,4 +104,17 @@ class FlightController extends Controller
                 ->get(),
         ]);
     }
+
+    public function getIgcFile(Request $request)
+    {
+        $flightPath = "igc_flights/" . $request->route('flight_path');
+        $flight = Flight::where('igc_file', $flightPath)->first();
+        if (!$flight->is_private || $flight->user_id == $request->user()->id) {
+            return response()->download(storage_path('app/private/igc_flights/' . $request->route('flight_path')));
+        }
+        return response()->json(
+            ['error' => 'File not found',
+            'flight_path' => $flightPath]
+            , 404);
+    }
 }
