@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FlightController;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\Social;
 use App\Http\Controllers\UserController;
 use App\Models\Flight;
 use Illuminate\Http\Request;
@@ -21,6 +22,8 @@ Route::prefix('flights')->group(function () {
     Route::post('/', [FlightController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/user/{user_id}' , [FlightController::class, 'getFlightsFromUser'])->middleware('auth:sanctum');
     Route::get('/download/{flight_path}', [FlightController::class, 'getFile'])->middleware('auth:sanctum');
+    Route::post('{flight}/comment', [Social::class, 'comment'])->middleware('auth:sanctum');
+    Route::post('{flight}/like', [Social::class, 'like'])->middleware('auth:sanctum');
 });
 
 Route::prefix('leaderboard')->group(function () {
