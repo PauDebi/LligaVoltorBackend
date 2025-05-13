@@ -42,6 +42,7 @@ class LeaderboardController extends Controller
                 ROW_NUMBER() OVER (PARTITION BY flights.user_id ORDER BY flights.points DESC) AS rn
             FROM flights
             $categoryFilter
+            AND flights.is_private = 0
         )
         SELECT
             ranked_flights.user_id,
