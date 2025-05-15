@@ -25,9 +25,9 @@ class UserController extends Controller
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
         $user = $request->user();
-        $path = $request->file('image')->store('profile_pictures', 'public');
+        $relativePath = $request->file('image')->store('profile_pictures', 'public');
+        $path = asset('storage/' . $relativePath);
         $user->update(['image_url' => $path]);
 
         return response()->json(['message' => 'Profile picture uploaded successfully', 'user' => $user]);
