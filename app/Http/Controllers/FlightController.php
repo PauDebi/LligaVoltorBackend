@@ -98,7 +98,7 @@ class FlightController extends Controller
         ]);
 
         $flight = Flight::findOrFail($request->route('flight_id'));
-        if ($request->user()->id != $flight->user_id) {
+        if (!$request->user() || $request->user()->id != $flight->user_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         if ($request->has('is_private')) {
