@@ -32,11 +32,6 @@ class LeaderboardController extends Controller
 
     public function getPunctuationCsv(Request $request)
     {
-        $user = $request->user();
-        if (!$user->is_admin) {
-            return response()->json(['error' => 'Unauthorized, only admin users'], 403);
-        }
-
         $punctuationCsv = storage_path('app/private/bonus_points.csv');
 
         if (!file_exists($punctuationCsv)) {
