@@ -90,9 +90,27 @@ class FlightController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        //
+        $request->validate([
+            'is_private' => 'boolean',
+            'category' => 'in:open,sport,club,tandem',
+        ]);
+
+        $flight = Flight::findOrFail($request->route('flight_id'));
+        if ($request->user()->id != $flight->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        if ($request->has('is_private')) {
+            $flight->is_private = $request->input('is_private');
+        }
+        if ($request->has('category')) {
+            $flight->category = $request->input('category');
+        }
+        return response()->json([
+            'status' => 200,
+            'flight' => $flight,
+        ]);
     }
 
     /**
