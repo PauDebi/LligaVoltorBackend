@@ -121,7 +121,15 @@ class FlightController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $flight = Flight::findOrFail($id);
+        if ($flight->user_id != request()->user()->id) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        $flight->delete();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Flight deleted successfully',
+        ]);
     }
 
     public function getFlightsFromUser(Request $request): JsonResponse

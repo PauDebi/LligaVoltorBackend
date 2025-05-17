@@ -20,6 +20,7 @@ Route::prefix('flights')->group(function () {
     Route::get('/', [FlightController::class, 'index']);
     Route::get('/{flight}', [FlightController::class, 'show']);
     Route::post('/{flight_id}', [FlightController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{flight_id}', [FlightController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('/', [FlightController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/user/{user_id}' , [FlightController::class, 'getFlightsFromUser'])->middleware('auth:sanctum');
     Route::get('/download/{flight_path}', [FlightController::class, 'getFile'])->middleware('auth:sanctum');
