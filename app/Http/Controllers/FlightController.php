@@ -50,6 +50,13 @@ class FlightController extends Controller
             $request->merge(['is_private' => false]);
         }
 
+        $bonusPath = storage_path('app/private/bonus_points.csv');
+
+        $csvContent = null;
+        if (file_exists($bonusPath)) {
+            $csvContent = file_get_contents($bonusPath);
+        }
+
         //Create a DB entry
         $flight = Flight::create([
             'igc_file' => $storedFilePath,
@@ -62,6 +69,7 @@ class FlightController extends Controller
             'glider-type' => $parsedData['aircraft_type'],
             'is_private' => $request->input('is_private'),
             'category' => $request->input('category'),
+            'punctuation_info' => $csvContent
         ]);
 
         // Return the response

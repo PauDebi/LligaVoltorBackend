@@ -17,6 +17,7 @@ class Flight extends Model
         'glider-type',
         'category',
         'is_private',
+        'punctuation_info'
     ];
     public function user()
     {
