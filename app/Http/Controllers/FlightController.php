@@ -96,10 +96,13 @@ class FlightController extends Controller
             'is_private' => 'boolean',
             'category' => 'in:open,sport,club,tandem',
         ]);
+        if ($request->user() == null) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
         $flight = Flight::findOrFail($request->route('flight_id'));
-        if (!$request->user() || $request->user()->id != $flight->user_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        if ($request->user()->id != $flight->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         if ($request->has('is_private')) {
             $flight->is_private = $request->input('is_private');

@@ -18,8 +18,8 @@ Route::prefix('user')->middleware(['auth:sanctum'])->group(function () {
 
 Route::prefix('flights')->group(function () {
     Route::get('/', [FlightController::class, 'index']);
-    Route::get('/{flight}', [FlightController::class, 'show'])->middleware('auth:sanctum');
-    Route::post('/{flight_id}', [FlightController::class, 'update']);
+    Route::get('/{flight}', [FlightController::class, 'show']);
+    Route::post('/{flight_id}', [FlightController::class, 'update'])->middleware('auth:sanctum');
     Route::post('/', [FlightController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/user/{user_id}' , [FlightController::class, 'getFlightsFromUser'])->middleware('auth:sanctum');
     Route::get('/download/{flight_path}', [FlightController::class, 'getFile'])->middleware('auth:sanctum');
