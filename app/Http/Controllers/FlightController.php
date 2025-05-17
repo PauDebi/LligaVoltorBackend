@@ -19,7 +19,7 @@ class FlightController extends Controller
      */
     public function index()
     {
-        $flights = Flight::with('user, likes, comments')->where('is_private', false)->orderByDesc('points')->get();
+        $flights = Flight::with(['user', 'likes', 'comments'])->where('is_private', false)->orderByDesc('points')->get();
         return response()->json([
             'status' => 200,
             'flights' => $flights
