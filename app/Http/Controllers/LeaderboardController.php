@@ -30,6 +30,40 @@ class LeaderboardController extends Controller
         return $this->getLeaderboard(['tandem']);
     }
 
+    public function getPunctuationCsv(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->is_admin) {
+            return response()->json(['error' => 'Unauthorized, only admin users. Your user: '.$user], 403);
+        }
+
+        $punctuationCsv = storage_path('app/private/bonus_points.csv');
+
+        if (!file_exists($punctuationCsv)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+
+        return response()->download($punctuationCsv, 'bonus_points.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    public function postPunctuationCsv(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->is_admin) {
+            return response()->json(['error' => 'Unauthorized, only admin users. Your user: '.$user], 403);
+        }
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+        $csvFile = $request->file('csv_file');
+        $destinationPath = storage_path('app/private');
+        $csvFile->move($destinationPath, 'bonus_points.csv');
+        return response()->json(['message' => 'File uploaded successfully', 'file_path' => $destinationPath]);
+    }
+
+
     private function getLeaderboard(array $categories): JsonResponse
     {
         $categoryFilter = empty($categories) ? '' : 'WHERE flights.category IN (' . implode(',', array_map(fn($c) => "'$c'", $categories)) . ')';

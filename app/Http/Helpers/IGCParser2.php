@@ -114,25 +114,31 @@ static function parseIGC(string $filePath, string $baseName): array
         $takeoffDT = DateTime::createFromFormat('Hisu', $first . '000000');
         $landingDT = DateTime::createFromFormat('Hisu', $last . '000000');
 
-        $scoreData = self::calculateXCScore($track);
+        $bonusPath = storage_path('app/private/bonus_points.csv');
+        $scoreData = self::calculateXCScore($track, $bonusPath);
         self::createCSV($track, $scoreData['start_point'], $scoreData['end_point'], $baseName);
 
         return [
             'max_altitude' => $maxAlt,
             'total_distance' => $scoreData['score_km'],
+            'total_points' => $scoreData['points'],
             'takeoff_time' => $takeoffDT->format('Y-m-d H:i:s'),
             'landing_time' => $landingDT->format('Y-m-d H:i:s'),
             'aircraft_type' => $aircraftType,
         ];
     }
 
-    public static function calculateXCScore(array $track): array
+    public static function calculateXCScore(array $track, string $bonusCsvPath = null): array
     {
+        if (!file_exists($bonusCsvPath)) {
+            throw new \Exception("No se encontró el archivo de bonificación: " . $bonusCsvPath);
+        }
+
         $maxDist = 0.0;
         $startIndex = 0;
         $endIndex = 0;
 
-        // Haversine como función interna
+        // Haversine
         $haversine = function ($lat1, $lon1, $lat2, $lon2) {
             $R = 6371; // km
             $dLat = deg2rad($lat2 - $lat1);
@@ -141,7 +147,7 @@ static function parseIGC(string $filePath, string $baseName): array
             return $R * 2 * asin(min(1, sqrt($a)));
         };
 
-        // Recorremos todos los pares de puntos para encontrar la mayor distancia
+        // Calcular distancia máxima
         for ($i = 0; $i < count($track) - 1; $i++) {
             for ($j = $i + 1; $j < count($track); $j++) {
                 $d = $haversine(
@@ -156,10 +162,42 @@ static function parseIGC(string $filePath, string $baseName): array
             }
         }
 
+        $basePoints = $maxDist;
+        $bonusPoints = 0;
+        $multiplier = 1.0;
+
+        // Leer bonificaciones si hay CSV
+        if ($bonusCsvPath && file_exists($bonusCsvPath)) {
+            $rows = array_map('str_getcsv', file($bonusCsvPath));
+            foreach ($rows as $row) {
+                if (count($row) !== 5) continue;
+
+                [$tipo, $cantidad, $lat, $lon, $radio] = $row;
+                $cantidad = floatval($cantidad);
+                $lat = floatval($lat);
+                $lon = floatval($lon);
+                $radio = floatval($radio); // en km
+
+                foreach ($track as $point) {
+                    $dist = $haversine($point['lat'], $point['lon'], $lat, $lon);
+                    if ($dist <= $radio) {
+                        if ($tipo == 'P') {
+                            $bonusPoints += $cantidad;
+                        } elseif ($tipo == 'M') {
+                            $multiplier += $cantidad;
+                        }
+                        break; // Solo una vez por punto bonus
+                    }
+                }
+            }
+        }
+
+        $totalPoints = ($basePoints + $bonusPoints) * $multiplier;
+
         return [
             'type' => 'open_distance',
             'score_km' => round($maxDist, 3),
-            'points' => round($maxDist * 1.0, 3), // factor 1.0
+            'points' => round($totalPoints, 3),
             'start_point' => $track[$startIndex],
             'end_point' => $track[$endIndex],
         ];

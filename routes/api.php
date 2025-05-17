@@ -29,6 +29,8 @@ Route::prefix('leaderboard')->group(function () {
     Route::get('/sport', [LeaderboardController::class, 'getSport']);
     Route::get('/club', [LeaderboardController::class, 'getClub']);
     Route::get('/tandem', [LeaderboardController::class, 'getTandem']);
+    Route::get('/punctuation_csv', [LeaderboardController::class, 'getPunctuationCsv'])->middleware('auth:sanctum');
+    Route::post('/punctuation_csv', [LeaderboardController::class, 'postPunctuationCsv'])->middleware('auth:sanctum');
 });
 
 Route::prefix('social')->group(function () {
