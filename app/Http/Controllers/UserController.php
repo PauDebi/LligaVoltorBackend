@@ -24,7 +24,7 @@ class UserController extends Controller
     {
         try {
             $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif',
             ]);
 
             $user = $request->user();
