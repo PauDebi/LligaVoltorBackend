@@ -34,7 +34,7 @@ class LeaderboardController extends Controller
     {
         $user = $request->user();
         if (!$user->is_admin) {
-            return response()->json(['error' => 'Unauthorized, only admin users. Your user: '.$user], 403);
+            return response()->json(['error' => 'Unauthorized, only admin users'], 403);
         }
 
         $punctuationCsv = storage_path('app/private/bonus_points.csv');
@@ -52,7 +52,7 @@ class LeaderboardController extends Controller
     {
         $user = $request->user();
         if (!$user->is_admin) {
-            return response()->json(['error' => 'Unauthorized, only admin users. Your user: '.$user], 403);
+            return response()->json(['error' => 'Unauthorized, only admin users'], 403);
         }
         $request->validate([
             'csv_file' => 'required|file|mimes:csv,txt',
