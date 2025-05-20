@@ -138,7 +138,7 @@ class FlightController extends Controller
         if ($request->user()->id == $user_id) {
             return response()->json([
                 'status' => 200,
-                'flights' => Flight::where('user_id', $user_id)->with('user')->get(),
+                'flights' => Flight::where('user_id', $user_id)->with(['user', 'comments', 'likes'])->get(),
             ]);
         }
         return response()->json([
