@@ -110,9 +110,10 @@ class FlightController extends Controller
         if ($request->has('category')) {
             $flight->category = $request->input('category');
         }
+        $flight->save();
         return response()->json([
             'status' => 200,
-            'flight' => $flight,
+            'flight' => $flight->load('user')->load('likes.user')->load('comments.user'),
         ]);
     }
 
